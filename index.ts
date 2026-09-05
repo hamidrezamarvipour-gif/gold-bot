@@ -10,7 +10,7 @@ const CHANNEL_ID = "@choorigallery";
 
 const bot = new Bot(BOT_TOKEN);
 
-const fontPath = path.join(__dirname, "assets", "Vazir-Bold.ttf");
+const fontPath = path.join(__dirname, "Vazir-Bold.ttf");
 GlobalFonts.registerFromPath(fontPath, "Vazir");
 
 function toPersianDigits(str: string): string {
@@ -19,7 +19,7 @@ function toPersianDigits(str: string): string {
 }
 
 async function generateGoldImage(priceText: string): Promise<Buffer> {
-  const templatePath = path.join(__dirname, "assets", "template.png");
+  const templatePath = path.join(__dirname, "template.png");
   const baseImage = await loadImage(templatePath);
 
   const canvas = createCanvas(baseImage.width, baseImage.height);
