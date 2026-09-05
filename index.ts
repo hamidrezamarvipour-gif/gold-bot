@@ -100,3 +100,13 @@ bot.start({
     console.log("ربات با موفقیت فعال شد و آماده دریافت قیمت است...");
   }
 });
+import * as http from "http";
+
+// باز نگه داشتن یک سرور وب ساده جهت تایید سلامت در رندر
+const port = process.env.PORT || 3000;
+http.createServer((req, res) => {
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("Bot is running 24/7!");
+}).listen(port, () => {
+  console.log(`Server listening on port ${port}`);
+});
