@@ -3,7 +3,7 @@ import { createCanvas, loadImage, GlobalFonts } from "@napi-rs/canvas";
 import * as path from "path";
 
 // ======================= اطلاعات شما =======================
-const BOT_TOKEN = "8768259725:AAF0GnEkKsoGZ0lnEksyECHN_XA"; 
+const BOT_TOKEN = "8768259725:AAF0GnEkKsoGZ0lnEksyECHN_XAUPrzyTMc"; 
 const ADMIN_IDS = [775248459, 104901849, 555444333]; // آیدی عددی ادمین‌های مجاز
 const CHANNEL_ID = "@choorigallery"; 
 // ==========================================================
