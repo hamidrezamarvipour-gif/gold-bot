@@ -4,7 +4,7 @@ import { Bot, InputFile } from "grammy";
 import { createCanvas, loadImage, GlobalFonts } from "@napi-rs/canvas";
 
 // تنظیمات ربات و کانال
-const BOT_TOKEN = "8768259725:AAFOGnEkkSoGZ01nEksyECHN_XA";
+const BOT_TOKEN = "8768259725:AAHkxgdTH_THiWF7kU7vdNvYitYCBTtNoII";
 const ADMIN_IDS: number[] = [775248459, 104901849, 555444333];
 const CHANNEL_ID = "@choorigallery";
 
