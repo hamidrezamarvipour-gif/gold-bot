@@ -3,8 +3,8 @@ import { createCanvas, loadImage, GlobalFonts } from "@napi-rs/canvas";
 import * as path from "path";
 
 // ======================= اطلاعات شما =======================
-const BOT_TOKEN = "8768259725:AAE0iMRVeB__VJu7DPkXl9pSnmVifswOp70"; 
-const ADMIN_ID = -1003951640731; // آیدی عددی تلگرام شما
+const BOT_TOKEN = "8768259725:AAF0GnEkKsoGZ0lnEksyECHN_XA"; 
+const ADMIN_IDS = [123456789, 987654321, 555444333]; // آیدی عددی ادمین‌های مجاز
 const CHANNEL_ID = "@choorigallery"; 
 // ==========================================================
 
@@ -67,7 +67,7 @@ async function generateGoldImage(priceText: string): Promise<Buffer> {
 }
 
 bot.on("message:text", async (ctx) => {
-  if (ctx.from.id !== ADMIN_ID) return;
+  if (!ctx.from || !ADMIN_IDS.includes(ctx.from.id)) return;
 
   const rawPrice = ctx.message.text.trim();
   const statusMsg = await ctx.reply("⏳ در حال تولید تصویر و ارسال به کانال...");
