@@ -67,7 +67,11 @@ async function generateGoldImage(priceText: string): Promise<Buffer> {
 }
 
 // دریافت پیام از تلگرام
-bot.on("message:text", async (ctx) => {
+bot.on("message", async (ctx) => {
+  console.log("🔥🔥🔥 MESSAGE RECEIVED 🔥🔥🔥");
+  console.log("User ID:", ctx.from?.id);
+  console.log("Message:", ctx.message);
+});
   const senderId = ctx.from?.id;
   const messageText = ctx.message.text.trim();
 
