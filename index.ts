@@ -1,17 +1,34 @@
 import * as http from "http";
 import * as path from "path";
 import { Bot, InputFile } from "grammy";
-import { createCanvas, loadImage, GlobalFonts } from "@napi-rs/canvas";
+import {
+  createCanvas,
+  loadImage,
+  GlobalFonts,
+} from "@napi-rs/canvas";
 
+// ================================
 // تنظیمات ربات و کانال
-const BOT_TOKEN = "8768259725:AAHkxgdTH_THiWF7kU7vdNvYitYCBTtNoII";
-const ADMIN_IDS: number[] = [775248459, 104901849, 555444333];
+// ================================
+
+const BOT_TOKEN = process.env.BOT_TOKEN || "";
+
+const ADMIN_IDS: number[] = [
+  775248459,
+  104901849,
+  555444333,
+];
+
 const CHANNEL_ID = "@choorigallery";
 
 const bot = new Bot(BOT_TOKEN);
 
+// ================================
 // ثبت فونت فارسی
+// ================================
+
 const fontPath = path.join(__dirname, "Vazir-Bold.ttf");
+
 try {
   GlobalFonts.registerFromPath(fontPath, "Vazir");
   console.log("✅ فونت با موفقیت بارگذاری شد.");
@@ -19,87 +36,234 @@ try {
   console.error("❌ خطا در فونت:", err);
 }
 
-// تابع تبدیل اعداد به فارسی
+// ================================
+// تبدیل اعداد انگلیسی به فارسی
+// ================================
+
 function toPersianDigits(str: string): string {
-  const farsiDigits = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"];
-  return str.replace(/[0-9]/g, (w) => farsiDigits[parseInt(w, 10)]);
+  const farsiDigits = [
+    "۰",
+    "۱",
+    "۲",
+    "۳",
+    "۴",
+    "۵",
+    "۶",
+    "۷",
+    "۸",
+    "۹",
+  ];
+
+  return str.replace(/[0-9]/g, (w) => {
+    return farsiDigits[parseInt(w, 10)];
+  });
 }
 
-// تولید تصویر خروجی
-async function generateGoldImage(priceText: string): Promise<Buffer> {
-  const templatePath = path.join(__dirname, "template.png");
+// ================================
+// تولید تصویر قیمت طلا
+// ================================
+
+async function generateGoldImage(
+  priceText: string
+): Promise<Buffer> {
+
+  const templatePath = path.join(
+    __dirname,
+    "template.png"
+  );
+
+  console.log("🖼️ در حال بارگذاری قالب:", templatePath);
+
   const baseImage = await loadImage(templatePath);
 
-  const canvas = createCanvas(baseImage.width, baseImage.height);
+  const canvas = createCanvas(
+    baseImage.width,
+    baseImage.height
+  );
+
   const ctx = canvas.getContext("2d");
 
-  ctx.drawImage(baseImage, 0, 0, baseImage.width, baseImage.height);
+  // قرار دادن تصویر قالب
+  ctx.drawImage(
+    baseImage,
+    0,
+    0,
+    baseImage.width,
+    baseImage.height
+  );
+
+  // ================================
+  // تاریخ و ساعت تهران
+  // ================================
 
   const now = new Date();
-  const timeStr = now.toLocaleTimeString("fa-IR", {
-    timeZone: "Asia/Tehran",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
 
-  const dateStr = now.toLocaleDateString("fa-IR", {
-    timeZone: "Asia/Tehran",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
+  const timeStr = now.toLocaleTimeString(
+    "fa-IR",
+    {
+      timeZone: "Asia/Tehran",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }
+  );
+
+  const dateStr = now.toLocaleDateString(
+    "fa-IR",
+    {
+      timeZone: "Asia/Tehran",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }
+  );
+
+  // ================================
+  // تنظیم متن
+  // ================================
 
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
-  // درج متن قیمت طلا
+  // قیمت
   ctx.fillStyle = "#ffffff";
   ctx.font = 'bold 58px "Vazir"';
-  ctx.fillText(toPersianDigits(priceText), canvas.width / 2, 750);
 
-  // درج تاریخ و زمان
+  ctx.fillText(
+    toPersianDigits(priceText),
+    canvas.width / 2,
+    750
+  );
+
+  // تاریخ و ساعت
   ctx.fillStyle = "#e0e0e0";
   ctx.font = '28px "Vazir"';
-  ctx.fillText(toPersianDigits(`ساعت: ${timeStr}  |  تاریخ: ${dateStr}`), canvas.width / 2, 840);
+
+  ctx.fillText(
+    toPersianDigits(
+      `ساعت: ${timeStr}  |  تاریخ: ${dateStr}`
+    ),
+    canvas.width / 2,
+    840
+  );
+
+  console.log("🖼️ تصویر آماده شد.");
 
   return canvas.toBuffer("image/png");
 }
 
-// دریافت پیام از تلگرام
-bot.on("message", async (ctx) => {
-  console.log("🔥🔥🔥 MESSAGE RECEIVED 🔥🔥🔥");
-  console.log("User ID:", ctx.from?.id);
-  console.log("Message:", ctx.message);
-});
+// ================================
+// دریافت قیمت از تلگرام
+// ================================
+
+bot.on("message:text", async (ctx) => {
+
+  console.log(
+    "🔥🔥🔥 MESSAGE RECEIVED 🔥🔥🔥"
+  );
+
   const senderId = ctx.from?.id;
   const messageText = ctx.message.text.trim();
 
-  console.log(`📩 پیام جدید از شناسه: ${senderId} | متن: ${messageText}`);
+  console.log(
+    `👤 User ID: ${senderId}`
+  );
 
-  if (!senderId || !ADMIN_IDS.includes(senderId)) {
-    console.log(`⛔️ کاربر مجاز نیست: ${senderId}`);
+  console.log(
+    `💰 Message: ${messageText}`
+  );
+
+  // ================================
+  // بررسی ادمین
+  // ================================
+
+  if (
+    !senderId ||
+    !ADMIN_IDS.includes(senderId)
+  ) {
+
+    console.log(
+      `⛔️ کاربر مجاز نیست: ${senderId}`
+    );
+
     return;
   }
 
-  const statusMsg = await ctx.reply("⏳ در حال تولید تصویر و ارسال به کانال...");
+  console.log(
+    "✅ کاربر مجاز است."
+  );
+
+  // ================================
+  // پیام وضعیت
+  // ================================
+
+  const statusMsg = await ctx.reply(
+    "⏳ در حال تولید تصویر و ارسال به کانال..."
+  );
 
   try {
-    const imageBuffer = await generateGoldImage(messageText);
 
-    await bot.api.sendPhoto(CHANNEL_ID, new InputFile(imageBuffer, "gold-price.png"), {
-      caption: `🔔 قیمت جدید طلا\n💰 ${toPersianDigits(messageText)} تومان\n\n📢 ${CHANNEL_ID}`,
-    });
+    // ================================
+    // ساخت تصویر
+    // ================================
+
+    console.log(
+      "1️⃣ شروع ساخت تصویر..."
+    );
+
+    const imageBuffer =
+      await generateGoldImage(
+        messageText
+      );
+
+    console.log(
+      "2️⃣ تصویر با موفقیت ساخته شد."
+    );
+
+    // ================================
+    // ارسال به کانال
+    // ================================
+
+    await bot.api.sendPhoto(
+      CHANNEL_ID,
+      new InputFile(
+        imageBuffer,
+        "gold-price.png"
+      ),
+      {
+        caption:
+          `🔔 قیمت جدید طلا\n` +
+          `💰 ${toPersianDigits(messageText)} تومان\n\n` +
+          `📢 ${CHANNEL_ID}`,
+      }
+    );
+
+    console.log(
+      "3️⃣ تصویر با موفقیت به کانال ارسال شد."
+    );
+
+    // ================================
+    // اعلام موفقیت به ادمین
+    // ================================
 
     await ctx.api.editMessageText(
       ctx.chat.id,
       statusMsg.message_id,
       "✅ تصویر با موفقیت در کانال منتشر شد."
     );
-    console.log("✅ ارسال موفق به کانال انجام شد.");
+
   } catch (error: any) {
-    console.error("❌ خطا در ارسال:", error);
-    const detail = error?.description || "خطای نامشخص تلگرام";
+
+    console.error(
+      "❌ خطا در ارسال:",
+      error
+    );
+
+    const detail =
+      error?.description ||
+      error?.message ||
+      "خطای نامشخص تلگرام";
+
     await ctx.api.editMessageText(
       ctx.chat.id,
       statusMsg.message_id,
@@ -108,20 +272,45 @@ bot.on("message", async (ctx) => {
   }
 });
 
-// سرور وب جهت فعال ماندن در رندر
-const port = process.env.PORT || 10000;
+// ================================
+// سرور وب Render
+// ================================
+
+const port =
+  Number(process.env.PORT) || 10000;
+
 http
   .createServer((req, res) => {
-    res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
-    res.end("Gold Bot is Live!");
+
+    res.writeHead(
+      200,
+      {
+        "Content-Type":
+          "text/plain; charset=utf-8",
+      }
+    );
+
+    res.end(
+      "Gold Bot is Live!"
+    );
   })
   .listen(port, () => {
-    console.log(`🌐 سرور وب روی پورت ${port} اجرا شد.`);
+
+    console.log(
+      `🌐 سرور وب روی پورت ${port} اجرا شد.`
+    );
   });
 
-// شروع کار ربات
+// ================================
+// شروع ربات
+// ================================
+
 bot.start({
   onStart: (botInfo) => {
-    console.log(`🤖 ربات @${botInfo.username} آماده دریافت قیمت است...`);
+
+    console.log(
+      `🤖 ربات @${botInfo.username} آماده دریافت قیمت است...`
+    );
+
   },
 });
